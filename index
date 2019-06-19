@@ -8,7 +8,7 @@
 #>
 
 
-$import = Import-Csv -path "\\venom\scripts\Onboarding Scripts\user.csv"
+$import = Import-Csv -path "\\SOMESERVER\user.csv"
 
 function bulk-NewUser {
   foreach ($line in $import)
@@ -18,8 +18,8 @@ function bulk-NewUser {
         $Lname = $line.last
         $script:fullname = "$Fname"+" "+"$Lname"
         $script:username = $fname+$lname[0]
-        $Fusername = $username+"@kff.org"
-        New-ADUser -Name $fullname -GivenName $line.first -Surname $line.last -DisplayName $fullname -SamAccountName $username -UserPrincipalName $Fusername -Path "OU=Employee Accounts,OU=CA,DC=kff,DC=org" -AccountPassword (ConvertTo-SecureString $line.password -AsPlainText -force) -ChangePasswordAtLogon 1 -Enabled $true
+        $Fusername = $username+"@DOMAIN.ORG"
+        New-ADUser -Name $fullname -GivenName $line.first -Surname $line.last -DisplayName $fullname -SamAccountName $username -UserPrincipalName $Fusername -Path "[AD OU PATH]" -AccountPassword (ConvertTo-SecureString $line.password -AsPlainText -force) -ChangePasswordAtLogon 1 -Enabled $true
     #Adds user info
         $office = $line.office
         $extension = $line.extension
@@ -31,11 +31,11 @@ function bulk-NewUser {
     #Create Email
         Write-host = "Create a mailbox for" $fullname -ForegroundColor Green
         $database = $line.EmailDatabase
-        $db = "KFF_MP_DB" + $database 
+        $db = "[NAME OF DATABASE]" + $database 
         Enable-Mailbox -Identity $username -Database $db
     #Alternate SMTP
         $altemail = $Fname[0] + $Lname
-        $altemail1 = $altemail + "@kff.org"
+        $altemail1 = $altemail + "@DOMAIN.org"
         Set-Mailbox $username -EmailAddresses @{add="$altemail1"} -CustomAttribute1 "CA"
         write-host = "Account created for [$fullname]!" -ForegroundColor Green
         }
@@ -765,4 +765,4 @@ HKLM:\SOFTWARE\Microsoft\ExchangeServer\v$VNString\Setup : MsiProductMajor
 
 Import-ModuleExchange -Credential (Get-Credential)
 write-host ="Testing Get-mailbox command..." -ForegroundColor red
-get-mailbox sftemp1
+get-mailbox SOMETESTEMAIL
